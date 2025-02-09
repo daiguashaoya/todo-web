@@ -82,12 +82,15 @@ document.addEventListener("DOMContentLoaded", function () {
         for (let i = filteredTasks.length - 1; i >= 0; i--) {
             const task = filteredTasks[i]; // 获取任务
             const li = document.createElement("li"); // 创建 `<li>` 元素
+            li.classList.add("task-item"); // 添加统一的 class
+
             li.innerHTML = `
                 <label class="custom-checkbox">
                 <input type="checkbox" ${task.completed ? "checked" : ""} data-index="${i}" class="toggle-complete">
                 <span></span> <!-- 这里用于绘制自定义圆圈 -->
                 </label>
                 <span class="${task.completed ? 'completed' : ''}">${task.text}</span>
+                <button class="drag-handle">⠿</button> <!-- 新增拖拽按钮 -->
                 <button class="delete-task" data-index="${i}">×</button>
                 `;
 
@@ -96,6 +99,10 @@ document.addEventListener("DOMContentLoaded", function () {
             textSpan.addEventListener('dblclick', function () {
                 startEditing(textSpan, task);
             });
+
+            // 改为绑定到拖拽按钮：
+            const dragHandle = li.querySelector('.drag-handle');
+            dragHandle.addEventListener('mousedown', startDrag);
             taskList.appendChild(li); // 将任务项追加到任务列表
         }
 
@@ -199,8 +206,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const saveEdit = () => {
             const newText = input.value.trim();
             if (newText && newText !== task.text) {
+                // 更新任务文本并重新解析时间
                 task.text = newText;
-                renderTasks(NowButtonId);
+                const timeMatch = newText.match(/(\d{1,2}:\d{2})/);
+                task.time = timeMatch ? timeMatch[0] : null;
+
+                sortTasks(); // 重新排序
+                renderTasks(NowButtonId); // 重新渲染
             } else {
                 input.replaceWith(spanElement);
             }
@@ -217,6 +229,114 @@ document.addEventListener("DOMContentLoaded", function () {
         input.addEventListener('blur', saveEdit);
     }
 
+    // 创建占位符（用于指示放置位置）
+    let placeholder = document.createElement('li');
+    placeholder.classList.add('placeholder'); // 给占位符添加 CSS 类
+    let draggedItem = null;
+    const sortableList = taskList; // 未将 taskList 赋值给 sortableList
+
+    function startDrag(e) {
+        // 获取实际拖动的 li 元素
+        const textSpan = e.currentTarget;
+        draggedItem = textSpan.closest('li');
+        draggedItem.classList.add('dragging');
+
+        // 关键修正：获取 li 元素的绝对位置
+        const rect = draggedItem.getBoundingClientRect();
+
+        // 正确计算鼠标在 li 元素内的相对位置
+        draggedItem.offsetX = e.clientX - rect.left;
+        draggedItem.offsetY = e.clientY - rect.top;
+
+        // 设置元素定位参数
+        draggedItem.style.position = 'absolute';
+        draggedItem.style.width = `${rect.width}px`;
+        draggedItem.style.left = `${rect.left}px`;
+        draggedItem.style.top = `${rect.top}px`;
+
+        // 插入占位符
+        sortableList.insertBefore(placeholder, draggedItem.nextSibling);
+
+        // 事件监听保持
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', endDrag);
+    }
+
+    function onDrag(e) {
+        if (!draggedItem) return;
+
+        // 使用修正后的偏移量计算
+        draggedItem.style.left = `${e.clientX - draggedItem.offsetX}px`;
+        draggedItem.style.top = `${e.clientY - draggedItem.offsetY}px`;
+
+        // 计算鼠标当前位置，找到最接近的元素（用于更新占位符位置）
+        const closestItem = [...sortableList.children]
+            .filter(item => item !== draggedItem && item !== placeholder) // 过滤掉当前拖拽元素和占位符
+            .reduce((closest, item) => {
+                const box = item.getBoundingClientRect(); // 获取元素的边界信息
+                const offset = e.clientY - box.top - box.height / 2; // 计算鼠标位置与元素中心的偏移量
+                return offset < 0 && offset > closest.offset ? { offset, element: item } : closest;
+            }, { offset: Number.NEGATIVE_INFINITY }).element; // 默认 offset 设为负无穷，确保最小值被更新
+
+        // 如果找到了合适的目标元素，则调整占位符位置
+        if (closestItem) {
+            sortableList.insertBefore(placeholder, closestItem);
+        } else {
+            // 如果没有合适的位置，则将占位符放在列表末尾
+            sortableList.appendChild(placeholder);
+        }
+    }
+
+    // 处理拖拽结束的逻辑
+    function endDrag() {
+        if (draggedItem) {
+            // 移除拖拽样式
+            draggedItem.classList.remove('dragging');
+
+            // 还原拖拽元素的定位样式
+            draggedItem.style.position = '';
+            draggedItem.style.left = '';
+            draggedItem.style.top = '';
+            draggedItem.style.width = '';
+
+            // 将拖拽的元素放入最终位置（即占位符的位置）
+            sortableList.insertBefore(draggedItem, placeholder);
+
+            // 移除占位符
+            placeholder.remove();
+
+            // 清空当前拖拽的元素
+            draggedItem = null;
+        }
+
+        // 移除事件监听器，避免影响后续拖拽操作
+        document.removeEventListener('mousemove', onDrag);
+        document.removeEventListener('mouseup', endDrag);
+        // 新增：同步tasks数组顺序（仅在all过滤时生效）
+        if (NowButtonId === "all") {
+            // 获取当前所有li元素（排除占位符）
+            const currentItems = [...sortableList.children]
+                .filter(item => item !== placeholder);
+
+            // ★ 关键修正：DOM顺序是逆序渲染，需要反转得到原始顺序
+            const renderedOrder = currentItems.reverse(); // 反转DOM顺序
+
+            // 创建映射表：原索引 → 任务对象
+            const indexMap = new Map();
+            tasks.forEach((task, index) => indexMap.set(index, task));
+
+            // ★ 获取原始tasks的索引顺序（需反转DOM元素顺序）
+            const newOrder = renderedOrder.map(item =>
+                parseInt(item.querySelector('.toggle-complete').dataset.index)
+            );
+
+            // 按拖动后的顺序重建tasks数组
+            tasks = newOrder.map(oldIndex => indexMap.get(oldIndex));
+        }
+
+        // 触发重新渲染（保持filter状态）
+        renderTasks(NowButtonId);
+    }
 
     renderTasks(NowButtonId);  // 页面加载时，默认渲染所有任务
 });

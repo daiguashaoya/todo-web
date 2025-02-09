@@ -110,7 +110,12 @@ li {
     /* 允许子元素换行 */
     word-break: break-word;
     /* 处理长单词或长字符串的换行 */
+    /* 鼠标停留变小手 */
+    cursor: grab;
+    /* 过渡动画显示速度 */
+    transition: all 0.1s ease;
 }
+
 
 /* 任务完成之后划线并修改颜色*/
 li span.completed {
@@ -295,4 +300,64 @@ li:hover>.delete-task:hover {
     border-radius: 3px;
     margin-left: 0px;
     /* 与复选框对齐 */
+}
+
+/* 禁用文本选择 防止冲突 */
+* {
+    user-select: none;
+}
+
+li:hover {
+    background-color: #f9f9f9;
+    /* 鼠标悬停时背景颜色变浅 */
+}
+
+/* 抓取时显示"抓取中" */
+li:active {
+    cursor: grabbing;
+}
+
+/* 被提起时的样式 */
+.task-item.dragging {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1000;
+    width: 400px;
+    opacity: 0.8;
+    background: #e9ecef;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* 占位符样式 */
+.placeholder {
+    background: #dee2e6;
+    border: 2px dashed #adb5bd;
+    height: 25px;
+    margin:0px;
+    border-radius: 8px;
+}
+
+.task-item span:not(.custom-checkbox span) {
+    display: inline-block;
+    /* 确保 span 能正确计算坐标 */
+    padding: 8px 0;
+    /* 保持与 li 元素相同的垂直间距 */
+}
+
+/*拖拽按钮样式 */
+.drag-handle {
+    cursor: grab;
+    background: none;
+    border: none;
+    padding: 0 8px;
+    opacity: 0.3;
+    transition: opacity 0.2s;
+}
+
+.drag-handle:hover {
+    opacity: 0.8;
+}
+
+.task-item:hover .drag-handle {
+    opacity: 0.6;
 }
