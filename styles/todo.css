@@ -193,6 +193,7 @@ li span {
 /* 当鼠标悬浮在 li 元素上时，显示删除按钮 */
 li:hover .delete-task {
     display: inline-block;
+    color: #000000;
 }
 
 .delete-task:hover {
