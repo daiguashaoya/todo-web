@@ -1,0 +1,280 @@
+/* 定义网页背景和字体 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+/* 定义标题样式 */
+.todo-header {
+    text-align: center;
+    font-size: 2rem;
+    color: #d53f3f;
+}
+
+
+/* 任务列表样式 
+    固定宽度
+    不要边框 只用阴影衬托 */
+.todo-list {
+    max-width: 400px;
+    margin: 10px auto;
+    margin-bottom: 0;
+    background-color: white;
+    padding: 0px;
+    /* border: 3px solid #000000; */
+    /* border-radius: 5px; */
+    /* 水平 垂直 模糊半径 */
+    box-shadow: 3px 6px 8px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #ddd;
+}
+
+/* 定义input盒子采用flex布局并居中 */
+.todo-input {
+    display: flex;
+    justify-content: center;
+    /* border: 1px solid #ddd; */
+    /* 水平居中 */
+    /* border: 3px solid #000000; */
+    border-bottom: 1px solid #ddd;
+}
+
+#new-task {
+    outline: none;
+    /* 关闭输入框点击时的默认外部轮廓 */
+}
+
+#new-task::placeholder {
+    font-style: italic;
+    /* 将 placeholder 文本设置为斜体 */
+}
+
+/* 当输入框被选中时，改变 todo-input 容器的边框 */
+.todo-input:focus-within {
+    border: 2px solid #d4503b;
+    /* 输入框选中时，改变容器的边框颜色 */
+}
+
+
+/* 展开按钮样式 */
+.todo-input button {
+    background-color: transparent;
+    border: none;
+    color: #757575;
+    font-size: 1rem;
+    /* 设置字体大小 */
+    padding: 10px;
+    /* 向右对齐按钮 */
+    cursor: pointer;
+    /* 设置为指针样式，表示可以点击 */
+}
+
+.todo-input button.all-completed {
+    color: #4CAF50;
+    /* 任务全部完成时，文字颜色变绿色 */
+}
+
+
+/* 输入框 撑满 */
+.todo-input input {
+    width: 100%;
+    padding: 15px;
+    margin: 0;
+    font-size: 1rem;
+    border: 1px solid #ffffff;
+}
+
+/* 列表盒子 */
+ul {
+    /* border: 3px solid #000000; */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+
+li {
+    /* 让文字处于中左处 */
+    display: flex;
+    align-items: center;
+    padding: 7px;
+    font-size: 1rem;
+    border-bottom: 1px solid #ddd;
+    flex-wrap: wrap;
+    /* 允许子元素换行 */
+    word-break: break-word;
+    /* 处理长单词或长字符串的换行 */
+}
+
+/* 任务完成之后划线并修改颜色*/
+li span.completed {
+    text-decoration: line-through;
+    color: #aaa;
+}
+
+/* 让圆圈居中 */
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+/* 让默认 checkbox 隐藏 */
+.custom-checkbox input {
+    display: none;
+}
+
+/* 创建自定义圆圈 */
+.custom-checkbox span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid black;
+    /* 默认黑色圆圈 */
+    border-radius: 100%;
+    /* 圆形 */
+    position: relative;
+
+    cursor: pointer;
+}
+
+/* 任务完成时，变成绿色的带勾圆圈 */
+.custom-checkbox input:checked+span {
+    border-color: green;
+    /* 绿色边框 */
+    background-color: transparent;
+}
+
+.custom-checkbox input:checked+span::before {
+    content: "✔";
+    /* 显示勾 */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: green;
+    /* 勾是绿色的 */
+    font-weight: bold;
+}
+
+/* 文本部分 确保不会溢出 */
+li span {
+    flex: 1;
+    /* 让文本占据剩余空间 */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    flex-wrap: wrap;
+    /* 确保内容溢出时换行 */
+}
+
+/* 删除按钮的样式 */
+.delete-task {
+    background-color: transparent;
+    border: none;
+    color: #000000;
+    font-size: 1rem;
+    /* 设置字体大小 */
+    margin-left: auto;
+    /* 向右对齐按钮 */
+    cursor: pointer;
+    /* width: 20px; */
+    /* align-self: center; */
+}
+
+/* 默认隐藏删除按钮 */
+.delete-task {
+    /* display: none; */
+    color: white;
+}
+
+/* 当鼠标悬浮在 li 元素上时，显示删除按钮 */
+li:hover .delete-task {
+    display: inline-block;
+}
+
+.delete-task:hover {
+    color: #a53a3a;
+    /* 鼠标悬停时按钮颜色变红 */
+}
+
+.delete-task:focus {
+    outline: none;
+    /* 去掉按钮的聚焦框 */
+}
+
+
+/* 层叠部分 */
+.overlap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.box1 {
+    width: 390px;
+    height: 4px;
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+}
+
+.box2 {
+    width: 380px;
+    height: 3px;
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+/* 四个按钮部分 */
+.todo-footer {
+    /* 四个按钮 中左且均分空间分布 */
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 6px;
+    height: 30px;
+    /* margin-top: 20px; */
+}
+
+/* 剩余任务显示样式 */
+.todo-footer span {
+    margin-right: 30px;
+    font-size: 0.7rem;
+    padding: 3px;
+    width: 100px;
+}
+
+/* 四个按钮样式 */
+.filters button {
+    /* border: 3px solid #000000; */
+    font-size: 0.7rem;
+    padding: 5px 5px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.filters button:hover {
+    background-color: #f0f0f0;
+}
+
+/* 新增选中状态样式 增加红色边框 并将文字改为红色*/
+.filters button.selected {
+    border: 1px solid #d53f3f;
+    border-radius: 3px;
+    color: #d53f3f;
+}
+
+
+/* 页脚样式设计 */
+.footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.5rem;
+    color: #888;
+}
