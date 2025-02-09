@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const box1 = document.querySelector(".box1");
     const box2 = document.querySelector(".box2");
 
+    // **隐藏 todo-footer 当任务列表为空**
+    const todoFooter = document.querySelector(".todo-footer");
+
     let tasks = []; // 存储任务的数组
 
     // 监听输入框的键盘事件，按下 "Enter" 键时添加新任务
@@ -26,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // 渲染任务列表
-    function renderTasks(filter = "All") {
+    function renderTasks(filter = "all") {
         taskList.innerHTML = "";  // 清空任务列表，以防止重复渲染
 
         let filteredTasks = tasks; // 默认显示所有任务
@@ -76,22 +79,26 @@ document.addEventListener("DOMContentLoaded", function () {
         // 处理 "AllComplete" 按钮的样式
         const AllCompleteButton = document.getElementById("all_complete");
         const allTasksCompleted = tasks.every(task => task.completed);  // 检查是否所有任务完成
-        // 确保没任务时 按钮显示为灰色
-        
-        if (allTasksCompleted && !tasks.length === 0) {
+
+        // 根据是否有任务去显示折叠的部分
+        if (tasks.length === 0) {
+            AllCompleteButton.style.color = "white";
+            todoFooter.style.display = "none";
+            box1.style.display = "none";
+            box2.style.display = "none"
+        }
+        else {
+            AllCompleteButton.style.color = " #757575";
+            AllCompleteButton.style.display = "block";
+            todoFooter.style.display = "flex";
+            box1.style.display = "block";
+            box2.style.display = "block";
+        }
+
+        if (allTasksCompleted) {
             AllCompleteButton.classList.add("all-completed");  // 添加样式类，改变文字颜色
         } else {
             AllCompleteButton.classList.remove("all-completed");  // 移除样式类，恢复原样
-        }
-        
-
-        if (tasks.length === 0) {
-            box1.style.display = "none";
-            box2.style.display = "none";
-        }
-        else {
-            box1.style.display = "block";
-            box2.style.display = "block";
         }
     }
 
