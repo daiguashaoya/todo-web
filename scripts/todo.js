@@ -20,15 +20,42 @@ document.addEventListener("DOMContentLoaded", function () {
     // 监听输入框的键盘事件，按下 "Enter" 键时添加新任务
     newTaskInput.addEventListener("keydown", function (event) {
         if (event.key === "Enter" && newTaskInput.value.trim() !== "") {
+            const taskText = newTaskInput.value.trim(); // 获取输入的任务文本
+            const timeMatch = taskText.match(/(\d{1,2}:\d{2})/); // 使用正则表达式查找时间（24小时制）
+
             const task = {
-                text: newTaskInput.value.trim(), // 任务文本（去除前后空格）
-                completed: false // 任务初始状态为未完成
+                text: taskText,
+                completed: false,
+                time: timeMatch ? timeMatch[0] : null // 如果找到时间，保存时间，否则为 null
             };
+
             tasks.push(task); // 将新任务添加到任务数组
             newTaskInput.value = ""; // 清空输入框
-            renderTasks(NowButtonId); // 重新渲染任务列表
+
+            // 按照规则排序任务数组
+            sortTasks();
+
+            // 重新渲染任务列表
+            renderTasks(NowButtonId);
         }
     });
+
+    // 按照规则排序任务数组
+    function sortTasks() {
+        // 将任务分为两类：包含时间的任务和不包含时间的任务
+        const tasksWithTime = tasks.filter(task => task.time);
+        const tasksWithoutTime = tasks.filter(task => !task.time);
+
+        // 按时间降序对包含时间的任务进行排序
+        tasksWithTime.sort((a, b) => {
+            const [hourA, minuteA] = a.time.split(':').map(Number);
+            const [hourB, minuteB] = b.time.split(':').map(Number);
+            return (hourB - hourA) || (minuteB - minuteA); // 先按小时降序，小时相同再按分钟降序
+        });
+
+        // 合并排序后的任务列表
+        tasks = [...tasksWithoutTime, ...tasksWithTime];
+    }
 
     // 渲染任务列表
     function renderTasks(filter = "all") {
