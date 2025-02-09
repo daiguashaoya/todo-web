@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const todoFooter = document.querySelector(".todo-footer");
 
     let tasks = []; // 存储任务的数组
+    let NowButtonId = "all"; // 用于存储当前选中的按钮的id
+
 
     // 监听输入框的键盘事件，按下 "Enter" 键时添加新任务
     newTaskInput.addEventListener("keydown", function (event) {
@@ -24,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
             };
             tasks.push(task); // 将新任务添加到任务数组
             newTaskInput.value = ""; // 清空输入框
-            renderTasks(); // 重新渲染任务列表
+            renderTasks(NowButtonId); // 重新渲染任务列表
         }
     });
 
@@ -61,6 +63,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 <span class="${task.completed ? 'completed' : ''}">${task.text}</span>
                 <button class="delete-task" data-index="${i}">×</button>
                 `;
+
+            // 添加双击事件监听
+            const textSpan = li.querySelector('span:not([class="custom-checkbox"] span)');
+            textSpan.addEventListener('dblclick', function () {
+                startEditing(textSpan, task);
+            });
             taskList.appendChild(li); // 将任务项追加到任务列表
         }
 
@@ -80,22 +88,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const AllCompleteButton = document.getElementById("all_complete");
         const allTasksCompleted = tasks.every(task => task.completed);  // 检查是否所有任务完成
 
-        // 根据是否有任务去显示折叠的部分
+        // 根据是否有任务去显示折叠的部分和todolist页脚
         if (tasks.length === 0) {
-            AllCompleteButton.style.color = "white";
+            AllCompleteButton.classList.add("custom-button-style");
             todoFooter.style.display = "none";
             box1.style.display = "none";
             box2.style.display = "none"
         }
         else {
-            AllCompleteButton.style.color = " #757575";
-            AllCompleteButton.style.display = "block";
+            // 移除按钮的样式，恢复初始样式
+            AllCompleteButton.classList.remove("custom-button-style");
             todoFooter.style.display = "flex";
             box1.style.display = "block";
             box2.style.display = "block";
         }
 
-        if (allTasksCompleted) {
+        if (allTasksCompleted && tasks.length !== 0) {
             AllCompleteButton.classList.add("all-completed");  // 添加样式类，改变文字颜色
         } else {
             AllCompleteButton.classList.remove("all-completed");  // 移除样式类，恢复原样
@@ -108,28 +116,30 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.target.classList.contains("toggle-complete")) {
             const index = event.target.dataset.index; // 获取任务索引
             tasks[index].completed = event.target.checked; // 更新任务的完成状态
-            renderTasks();  // 重新渲染任务列表
+            renderTasks(NowButtonId);  // 重新渲染任务列表
         }
 
         // 处理任务删除
         if (event.target.classList.contains("delete-task")) {
             const index = event.target.dataset.index; // 获取任务索引
             tasks.splice(index, 1); // 从任务数组中删除该任务
-            renderTasks();  // 重新渲染任务列表
+            renderTasks(NowButtonId);  // 重新渲染任务列表
         }
     });
 
     // 监听过滤按钮的点击事件，切换任务显示状态
     filters.addEventListener("click", function (event) {
         if (event.target.tagName === "BUTTON") {
-            renderTasks(event.target.id);  // 重新渲染任务，并根据按钮 ID 进行过滤
+            if (event.target.id !== "clear_completed")
+                NowButtonId = event.target.id;  // 更新当前选中的按钮的id
+            renderTasks(NowButtonId);  // 重新渲染任务，并根据按钮 ID 进行过滤
         }
     });
 
     // 监听 "Clear completed" 按钮的点击事件，删除所有已完成的任务
     clearCompletedButton.addEventListener("click", function () {
         tasks = tasks.filter(task => !task.completed); // 删除所有已完成的任务
-        renderTasks();  // 重新渲染任务列表
+        renderTasks(NowButtonId);  // 重新渲染任务列表
     });
 
     // 监听 "AllComplete" 按钮的点击事件，切换所有任务的状态
@@ -142,8 +152,44 @@ document.addEventListener("DOMContentLoaded", function () {
             task.completed = !is_all_completed; // 如果任务已全部完成，则将它们设为未完成；否则，将它们设为已完成
         });
 
-        renderTasks(); // 重新渲染任务列表
+        renderTasks(NowButtonId); // 重新渲染任务列表
     });
 
-    renderTasks();  // 页面加载时，默认渲染所有任务
+
+    // 新增编辑功能函数
+    function startEditing(spanElement, task) {
+        // 创建输入框
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = task.text;
+        input.className = 'edit-input';
+
+        // 替换span为输入框
+        spanElement.replaceWith(input);
+        input.focus();
+
+        // 保存修改
+        const saveEdit = () => {
+            const newText = input.value.trim();
+            if (newText && newText !== task.text) {
+                task.text = newText;
+                renderTasks(NowButtonId);
+            } else {
+                input.replaceWith(spanElement);
+            }
+        };
+
+        // 监听回车键
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                saveEdit();
+            }
+        });
+
+        // 监听失去焦点事件
+        input.addEventListener('blur', saveEdit);
+    }
+
+
+    renderTasks(NowButtonId);  // 页面加载时，默认渲染所有任务
 });

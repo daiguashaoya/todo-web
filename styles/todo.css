@@ -70,6 +70,11 @@ body {
     /* 设置为指针样式，表示可以点击 */
 }
 
+/* 展开按钮样式 */
+.todo-input button.custom-button-style {
+    color: white;
+}
+
 .todo-input button.all-completed {
     color: #4CAF50;
     /* 任务全部完成时，文字颜色变绿色 */
@@ -196,7 +201,8 @@ li:hover .delete-task {
     color: #000000;
 }
 
-.delete-task:hover {
+
+li:hover>.delete-task:hover {
     color: #a53a3a;
     /* 鼠标悬停时按钮颜色变红 */
 }
@@ -281,20 +287,12 @@ li:hover .delete-task {
 }
 
 
-/* 拖住按功能辅助 */
-#task-list li {
-    transition: all 0.3s ease;
-    /* 添加过渡效果，平滑移动 */
-    cursor: move;
-    /* 鼠标样式改为拖动 */
-}
-
-#task-list li.dragging {
-    opacity: 0.5;
-    /* 当任务被拖动时，让它变得半透明 */
-}
-
-/* 禁用文本选择 防止冲突 */
-* {
-    user-select: none;
+.edit-input {
+    border: 1px solid #ddd;
+    padding: 5px;
+    width: 200px;
+    font-size: 1rem;
+    border-radius: 3px;
+    margin-left: 0px;
+    /* 与复选框对齐 */
 }
