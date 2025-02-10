@@ -184,7 +184,8 @@ li span {
 .delete-task {
     background-color: transparent;
     border: none;
-    color: #000000;
+    color: white;
+    /* 默认隐藏删除按钮 */
     font-size: 1rem;
     /* 设置字体大小 */
     margin-left: auto;
@@ -194,11 +195,7 @@ li span {
     /* align-self: center; */
 }
 
-/* 默认隐藏删除按钮 */
-.delete-task {
-    /* display: none; */
-    color: white;
-}
+
 
 /* 当鼠标悬浮在 li 元素上时，显示删除按钮 */
 li:hover .delete-task {
@@ -333,7 +330,7 @@ li:active {
     background: #dee2e6;
     border: 2px dashed #adb5bd;
     height: 25px;
-    margin:0px;
+    margin: 0px;
     border-radius: 8px;
 }
 
@@ -360,4 +357,68 @@ li:active {
 
 .task-item:hover .drag-handle {
     opacity: 0.6;
+}
+
+/* 页面适配 */
+
+@media (max-width: 1024px) {
+    .todo-list {
+        max-width: 100%;
+        width: 95%;
+    }
+
+    .todo-header {
+        font-size: 1.5rem;
+    }
+
+    .todo-input input {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+
+    li {
+        font-size: 0.9rem;
+        padding: 5px;
+    }
+
+    .custom-checkbox span {
+        width: 18px;
+        height: 18px;
+    }
+
+    .delete-task {
+        font-size: 0.9rem;
+    }
+}
+
+/* 针对更小屏幕（如手机） */
+@media (max-width: 480px) {
+    .todo-list {
+        width: 100%;
+        margin: 5px auto;
+    }
+
+    .todo-header {
+        font-size: 3rem;
+    }
+
+    .todo-input input {
+        padding: 10px;
+        font-size: 1.5rem;
+    }
+
+    li {
+        font-size: 1.5rem;
+        padding: 4px;
+    }
+
+    .custom-checkbox span {
+        width: 20px;
+        height: 20px;
+    }
+
+    .delete-task {
+        font-size: 1.5rem;
+        color: #000000;
+    }
 }

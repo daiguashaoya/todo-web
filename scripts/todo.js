@@ -1,4 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
+
+    // 新增：从LocalStorage加载数据
+    const savedTasks = localStorage.getItem('tasks');
+    let tasks = savedTasks ? JSON.parse(savedTasks) : []; // 修改初始化方式
+
+    // 新增：保存到LocalStorage的方法
+    function saveToLocalStorage() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
     // 获取页面中的相关元素
     const newTaskInput = document.getElementById("new-task"); // 输入框
     const taskList = document.getElementById("task-list"); // 任务列表
@@ -13,7 +23,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // **隐藏 todo-footer 当任务列表为空**
     const todoFooter = document.querySelector(".todo-footer");
 
-    let tasks = []; // 存储任务的数组
     let NowButtonId = "all"; // 用于存储当前选中的按钮的id
 
 
@@ -34,7 +43,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // 按照规则排序任务数组
             sortTasks();
-
+            // 保存到LocalStorage
+            saveToLocalStorage();
             // 重新渲染任务列表
             renderTasks(NowButtonId);
         }
@@ -150,6 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.target.classList.contains("toggle-complete")) {
             const index = event.target.dataset.index; // 获取任务索引
             tasks[index].completed = event.target.checked; // 更新任务的完成状态
+            saveToLocalStorage(); // 保存到LocalStorage
             renderTasks(NowButtonId);  // 重新渲染任务列表
         }
 
@@ -157,6 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.target.classList.contains("delete-task")) {
             const index = event.target.dataset.index; // 获取任务索引
             tasks.splice(index, 1); // 从任务数组中删除该任务
+            saveToLocalStorage(); // 保存到LocalStorage
             renderTasks(NowButtonId);  // 重新渲染任务列表
         }
     });
@@ -173,6 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 监听 "Clear completed" 按钮的点击事件，删除所有已完成的任务
     clearCompletedButton.addEventListener("click", function () {
         tasks = tasks.filter(task => !task.completed); // 删除所有已完成的任务
+        saveToLocalStorage(); // 保存到LocalStorage
         renderTasks(NowButtonId);  // 重新渲染任务列表
     });
 
@@ -185,12 +198,12 @@ document.addEventListener("DOMContentLoaded", function () {
         tasks.forEach(task => {
             task.completed = !is_all_completed; // 如果任务已全部完成，则将它们设为未完成；否则，将它们设为已完成
         });
-
+        saveToLocalStorage(); // 保存到LocalStorage
         renderTasks(NowButtonId); // 重新渲染任务列表
     });
 
 
-    // 新增编辑功能函数
+    // 编辑任务内容的函数
     function startEditing(spanElement, task) {
         // 创建输入框
         const input = document.createElement('input');
@@ -212,6 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 task.time = timeMatch ? timeMatch[0] : null;
 
                 sortTasks(); // 重新排序
+                saveToLocalStorage(); // 保存到LocalStorage
                 renderTasks(NowButtonId); // 重新渲染
             } else {
                 input.replaceWith(spanElement);
@@ -229,7 +243,7 @@ document.addEventListener("DOMContentLoaded", function () {
         input.addEventListener('blur', saveEdit);
     }
 
-    // 创建占位符（用于指示放置位置）
+    // 拖拽功能实现部分
     let placeholder = document.createElement('li');
     placeholder.classList.add('placeholder'); // 给占位符添加 CSS 类
     let draggedItem = null;
@@ -332,11 +346,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // 按拖动后的顺序重建tasks数组
             tasks = newOrder.map(oldIndex => indexMap.get(oldIndex));
+            saveToLocalStorage(); // 保存到LocalStorage
         }
 
         // 触发重新渲染（保持filter状态）
         renderTasks(NowButtonId);
     }
+
 
     renderTasks(NowButtonId);  // 页面加载时，默认渲染所有任务
 });
